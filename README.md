@@ -17,3 +17,7 @@ Steps:
 2) `anchor deploy`: Deploys all programs and generated program IDs for each.
 3) Update the program IDs for each program with the corresponding generated program ID.
 4) `anchor test --detach --skip-local-validator`: Runs all the tests on the locally running validator.
+
+Test by program name
+- ```anchor test --program-name <PROGRAM-NAME> --detach --skip-local-validator```
+
