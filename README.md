@@ -21,3 +21,6 @@ Steps:
 Test by program name
 - ```anchor test --program-name <PROGRAM-NAME> --detach --skip-local-validator```
 
+Note: anchor test automatically builds and deploys the contract first before runnning the test
+
+If facing any issue, try deleting target/deploy dir and restart from step number 2
