@@ -1,7 +1,14 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
 import { Token } from "../target/types/token";
-
+import {
+  getAccount,
+  getAssociatedTokenAddress,
+  getAssociatedTokenAddressSync,
+  getMint,
+  getOrCreateAssociatedTokenAccount,
+} from "@solana/spl-token";
+import { assert } from "chai";
 describe("token", () => {
   let provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
@@ -42,6 +49,8 @@ describe("token", () => {
       .accounts({ mint: mint.publicKey, signer: wallet.publicKey })
       .rpc();
     console.log("Your transaction signature", tx);
+    let mint_after = await getMint(provider.connection, mint.publicKey);
+    assert("100" == mint_after.supply.toString());
   });
   it("Transfer Tokens!", async () => {
     // Creates the reciver's token account if does not already exist
@@ -54,6 +63,26 @@ describe("token", () => {
         recieverAccount: reciever.publicKey,
       })
       .rpc();
+    let reciever_token_address = getAssociatedTokenAddressSync(
+      mint.publicKey,
+      reciever.publicKey
+    );
+    let reciever_token_account = await getAccount(
+      provider.connection,
+      reciever_token_address
+    );
+    let sender_token_address = getAssociatedTokenAddressSync(
+      mint.publicKey,
+      wallet.publicKey
+    );
+    let sender_token_account = await getAccount(
+      provider.connection,
+      sender_token_address
+    );
+    assert("50" == reciever_token_account.amount.toString());
+    assert("50" == sender_token_account.amount.toString());
+    let mint_after = await getMint(provider.connection, mint.publicKey);
+    assert("100" == mint_after.supply.toString());
     console.log("Your transaction signature", tx);
   });
 });
