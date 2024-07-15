@@ -19,3 +19,5 @@ Test by program name
 - ```anchor test --program-name <PROGRAM-NAME> --detach```
 
 If facing any issue, try deleting target/deploy dir and restart from step number 1
+
+Look at program logs in `.anchor/program-logs`

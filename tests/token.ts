@@ -10,7 +10,6 @@ describe("token", () => {
   const wallet = provider.wallet as anchor.Wallet;
   const mint = new anchor.web3.Keypair();
   it("Created mint!", async () => {
-    // Add your test here.
     const tx = await program.methods
       .createMint(0)
       .accounts({ mint: mint.publicKey, signer: wallet.publicKey })
@@ -18,9 +17,7 @@ describe("token", () => {
       .rpc();
     console.log("Your transaction signature", tx);
   });
-
   it("Attached Metadata!", async () => {
-    // Add your test here.
     const tx = await program.methods
       .attachMetadata({
         name: "Devil",
@@ -28,6 +25,34 @@ describe("token", () => {
         uri: "https://media.istockphoto.com/id/1132736427/vector/devil-emoticon-isolated-on-white-background-emoji-smiley-vector-illustration.jpg?s=612x612&w=0&k=20&c=l4O1ujfaPcXV9zNdgPwHtC_wK-zgTrMbGmieRUf_T3A=",
       })
       .accounts({ mint: mint.publicKey, signer: wallet.publicKey })
+      .rpc();
+    console.log("Your transaction signature", tx);
+  });
+  it("Create Token Accounts!", async () => {
+    const tx = await program.methods
+      .createUserTokenAccount()
+      .accounts({ mint: mint.publicKey, signer: wallet.publicKey })
+      .rpc();
+    console.log("Your transaction signature", tx);
+  });
+  it("Mint Tokens to Myself!", async () => {
+    // Creates token account if does not already exist
+    const tx = await program.methods
+      .mintTokens(100)
+      .accounts({ mint: mint.publicKey, signer: wallet.publicKey })
+      .rpc();
+    console.log("Your transaction signature", tx);
+  });
+  it("Transfer Tokens!", async () => {
+    // Creates the reciver's token account if does not already exist
+    let reciever = new anchor.web3.Keypair();
+    const tx = await program.methods
+      .transferToken(50)
+      .accounts({
+        mint: mint.publicKey,
+        signer: wallet.publicKey,
+        recieverAccount: reciever.publicKey,
+      })
       .rpc();
     console.log("Your transaction signature", tx);
   });
