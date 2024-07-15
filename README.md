@@ -15,7 +15,7 @@ Run a local validator in a seperate terminal to test programs locally with
 Steps:
 1) `anchor build`: Builds all programs
 2) `anchor deploy`: Deploys all programs and generated program IDs for each.
-3) Update the program IDs for each program with the corresponding generated program ID.
+3) Update (if not done automatically) the program IDs for each program with the corresponding generated program ID.
 4) `anchor test --detach --skip-local-validator`: Runs all the tests on the locally running validator.
 
 Test by program name
@@ -23,4 +23,4 @@ Test by program name
 
 Note: anchor test automatically builds and deploys the contract first before runnning the test
 
-If facing any issue, try deleting target/deploy dir and restart from step number 2
+If facing any issue, try deleting target/deploy dir and restart from step number 1
