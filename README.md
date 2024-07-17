@@ -9,15 +9,17 @@ solana-cli 1.18.17
 Set solana config to localhost with
 - ``` solana config set --url localhost ```
 
-Steps:
+## Building
 1) `anchor build`: Builds all programs
-2) `anchor deploy`: Deploys all programs and generated program IDs for each.
-3) Update (if not done automatically) the program IDs for each program with the corresponding generated program ID.
-4) `anchor test --detach`: Runs all the tests.
+2) Update the program IDs for each program with the corresponding generated program ID.
 
+## Running Tests
 Test by program name
-- ```anchor test --program-name <PROGRAM-NAME> --detach```
+- ```anchor test --detach --program-name <PROGRAM-NAME>```
 
-If facing any issue, try deleting target/deploy dir and restart from step number 1
-
+## Logging
 Look at program logs in `.anchor/program-logs`
+Or use `solana logs`
+Also set skipPreflight to false to see logs in case of failures in sending transaction.
+
+If facing any issue, try deleting target dir and revert any changes to cargo.lock and retry, else feel free to create an issue to discuss.
