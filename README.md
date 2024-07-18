@@ -20,6 +20,6 @@ Test by program name
 ## Logging
 Look at program logs in `.anchor/program-logs`
 Or use `solana logs`
-Also set skipPreflight to false to see logs in case of failures in sending transaction.
+Also set skipPreflight to true to see logs in case of failures in sending transaction.
 
 If facing any issue, try deleting target dir and revert any changes to cargo.lock and retry, else feel free to create an issue to discuss.
