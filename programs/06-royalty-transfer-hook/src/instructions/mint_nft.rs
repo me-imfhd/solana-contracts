@@ -7,9 +7,9 @@ use anchor_spl::token_interface::{
     Mint,
     TokenAccount,
     TokenMetadataInitialize,
+    spl_token_2022::instruction::AuthorityType,
+    spl_pod::solana_program::program_option::COption,
 };
-use spl_pod::solana_program::program_option::COption;
-use spl_token_2022::instruction::AuthorityType;
 
 use crate::state::token_group::TokenGroup;
 use crate::state::token_group_member::TokenGroupMember;
@@ -67,7 +67,9 @@ pub struct MintNft<'info> {
         extensions::metadata_pointer::authority = payer,
         extensions::metadata_pointer::metadata_address = mint,
         extensions::group_member_pointer::authority = payer,
-        extensions::group_member_pointer::member_address = mint
+        extensions::group_member_pointer::member_address = mint,
+        extensions::transfer_hook::authority = payer,
+        extensions::transfer_hook::program_id = crate::ID
     )]
     pub mint: Box<InterfaceAccount<'info, Mint>>,
     #[account(

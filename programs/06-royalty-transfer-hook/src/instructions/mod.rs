@@ -1,8 +1,10 @@
 pub mod mint_nft;
 pub mod group_mint;
+pub mod royalties;
 
 pub use mint_nft::*;
 pub use group_mint::*;
+pub use royalties::*;
 
 use anchor_lang::prelude::*;
 pub fn update_account_lamports_to_minimum_balance<'info>(

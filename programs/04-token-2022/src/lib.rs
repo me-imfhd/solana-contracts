@@ -9,7 +9,7 @@ use anchor_spl::token_interface::{
     TransferChecked,
 };
 pub mod instructions;
-declare_id!("Ci1ko32JkucBWmMQRfPDqnVHbTxGZPRU2M9S8qTT3bAs");
+declare_id!("91J8CD9JT5jq5nqDctEK2Lp4svmzvQXJobnwoZDDUz8T");
 
 #[program]
 pub mod token_2022_program {
