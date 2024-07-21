@@ -77,7 +77,7 @@ pub struct MintNft<'info> {
         associated_token::mint = mint,
         associated_token::authority = mint_to
     )]
-    pub nft: Box<InterfaceAccount<'info, TokenAccount>>,
+    pub nft_ata: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(
         init,
         seeds = [b"member_configuration_account", mint.key().as_ref()],
@@ -124,7 +124,7 @@ impl<'info> MintNft<'info> {
     fn mint_to_receiver(&self) -> Result<()> {
         let cpi_ctx = MintTo {
             mint: self.mint.to_account_info(),
-            to: self.nft.to_account_info(),
+            to: self.nft_ata.to_account_info(),
             authority: self.mint_to.to_account_info(),
         };
         let cpi_accounts = CpiContext::new(self.token_program.to_account_info(), cpi_ctx);
