@@ -18,6 +18,8 @@ pub enum MetadataErrors {
     CreatorAddressInvalid,
     #[msg("Royalty basis points must be less than or equal to 10000.")]
     RoyaltyBasisPointsInvalid,
+    #[msg("Is Not Currently Transferring")]
+    IsNotCurrentlyTransferring
 }
 
 #[error_code]
@@ -28,4 +30,10 @@ pub enum MintErrors {
     InvalidDelegateAuthority,
     #[msg("Invalid Token group member mint")]
     InvalidTokenGroupMemberMint,
+}
+
+#[error_code]
+pub enum MarketplaceError {
+    #[msg("Arithmetic error")]
+    ArithmeticError,
 }

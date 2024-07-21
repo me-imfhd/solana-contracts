@@ -1,7 +1,7 @@
 #![allow(ambiguous_glob_reexports)]
 use anchor_lang::prelude::*;
 
-declare_id!("TTZuk1mNNgTSq8wVpsopfH9knh4zWJDN1umMucizFFo");
+declare_id!("7CysybXTfFLKS9XrRkDKUwufyuVgAaQ6stbuefHvHZyo");
 pub mod instructions;
 pub mod state;
 pub mod error;

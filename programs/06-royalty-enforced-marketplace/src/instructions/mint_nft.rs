@@ -13,7 +13,6 @@ use anchor_spl::token_interface::{
 
 use crate::state::token_group::TokenGroup;
 use crate::state::token_group_member::TokenGroupMember;
-
 use super::update_account_lamports_to_minimum_balance;
 pub fn mint_nft(ctx: Context<MintNft>, args: MintNftArgs) -> Result<()> {
     ctx.accounts.initialize_token_metadata(args.name, args.symbol, args.uri)?; // metadata stored inside the mint
@@ -64,12 +63,13 @@ pub struct MintNft<'info> {
         mint::token_program = token_program,
         mint::decimals = 0,
         mint::authority = payer,
+        mint::freeze_authority = payer,
         extensions::metadata_pointer::authority = payer,
         extensions::metadata_pointer::metadata_address = mint,
         extensions::group_member_pointer::authority = payer,
         extensions::group_member_pointer::member_address = mint,
         extensions::transfer_hook::authority = payer,
-        extensions::transfer_hook::program_id = crate::ID
+        extensions::transfer_hook::program_id = enforced_transfer_hook::ID
     )]
     pub mint: Box<InterfaceAccount<'info, Mint>>,
     #[account(
@@ -79,7 +79,7 @@ pub struct MintNft<'info> {
         associated_token::mint = mint,
         associated_token::authority = mint_to
     )]
-    pub nft: Box<InterfaceAccount<'info, TokenAccount>>,
+    pub nft_ata: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(
         init,
         seeds = [b"member_configuration_account", mint.key().as_ref()],
@@ -126,7 +126,7 @@ impl<'info> MintNft<'info> {
     fn mint_to_receiver(&self) -> Result<()> {
         let cpi_ctx = MintTo {
             mint: self.mint.to_account_info(),
-            to: self.nft.to_account_info(),
+            to: self.nft_ata.to_account_info(),
             authority: self.mint_to.to_account_info(),
         };
         let cpi_accounts = CpiContext::new(self.token_program.to_account_info(), cpi_ctx);

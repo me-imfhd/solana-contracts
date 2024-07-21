@@ -31,6 +31,7 @@ pub fn create_group_mint(ctx: Context<CreateGroupMint>, args: CreateGroupArgs) -
         ctx.accounts.payer.to_account_info(),
         ctx.accounts.system_program.to_account_info()
     )?;
+    msg!("Created Group/ Collection Nft successfully.");
     Ok(())
 }
 
@@ -69,7 +70,7 @@ pub struct CreateGroupMint<'info> {
         associated_token::mint = group_mint,
         associated_token::authority = mint_to
     )]
-    pub collection_nft: Box<InterfaceAccount<'info, TokenAccount>>,
+    pub collection_nft_ata: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(
         init,
         seeds = [b"group_configuration_account", group_mint.key().as_ref()],
@@ -109,7 +110,7 @@ impl CreateGroupMint<'_> {
     fn mint_to_receiver(&self) -> Result<()> {
         let cpi_ctx = MintTo {
             mint: self.group_mint.to_account_info(),
-            to: self.collection_nft.to_account_info(),
+            to: self.collection_nft_ata.to_account_info(),
             authority: self.payer.to_account_info(),
         };
         let cpi_accounts = CpiContext::new(self.token_program.to_account_info(), cpi_ctx);
