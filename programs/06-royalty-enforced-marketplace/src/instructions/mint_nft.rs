@@ -13,7 +13,6 @@ use anchor_spl::token_interface::{
 
 use crate::state::token_group::TokenGroup;
 use crate::state::token_group_member::TokenGroupMember;
-
 use super::update_account_lamports_to_minimum_balance;
 pub fn mint_nft(ctx: Context<MintNft>, args: MintNftArgs) -> Result<()> {
     ctx.accounts.initialize_token_metadata(args.name, args.symbol, args.uri)?; // metadata stored inside the mint

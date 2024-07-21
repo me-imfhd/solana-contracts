@@ -1,13 +1,13 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
-import { RoyaltyTransferHook } from "../target/types/royalty_transfer_hook";
+import { RoyaltyEnforcedMarketplace } from "../target/types/royalty_enforced_marketplace";
 
 describe("token", () => {
   let provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
   const program = anchor.workspace
-    .RoyaltyTransferHook as Program<RoyaltyTransferHook>;
+    .RoyaltyEnforcedMarketplace as Program<RoyaltyEnforcedMarketplace>;
   const wallet = provider.wallet as anchor.Wallet;
   const groupMint = new anchor.web3.Keypair();
   it("Mint Collection", async () => {

@@ -1,12 +1,12 @@
 [package]
-name = "royalty_transfer_hook"
+name = "royalty_enforced_marketplace"
 version = "0.1.0"
 description = "Created with Anchor"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "royalty_transfer_hook"
+name = "royalty_enforced_marketplace"
 
 [features]
 default = []
@@ -19,5 +19,5 @@ idl-build = ["anchor-lang/idl-build",  "anchor-spl/idl-build"]
 [dependencies]
 anchor-lang.workspace = true
 anchor-spl.workspace = true
-# spl-transfer-hook-interface.workspace = true
+spl-transfer-hook-interface.workspace = true
 spl-tlv-account-resolution.workspace = true
