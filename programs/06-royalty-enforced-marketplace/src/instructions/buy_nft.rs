@@ -217,7 +217,7 @@ impl<'info> BuyNft<'info> {
             self.seller_token_account.to_account_info(),
             self.mint.to_account_info(),
             self.buyer_token_account.to_account_info(),
-            self.seller.to_account_info(),
+            self.listed_nft_pda.to_account_info(),
             additional_accounts,
             1,
             0,
