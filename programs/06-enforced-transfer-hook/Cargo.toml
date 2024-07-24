@@ -1,12 +1,12 @@
 [package]
-name = "royalty_enforced_marketplace"
+name = "enforced_transfer_hook"
 version = "0.1.0"
 description = "Created with Anchor"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "royalty_enforced_marketplace"
+name = "enforced_transfer_hook"
 
 [features]
 default = []
@@ -17,7 +17,6 @@ no-log-ix-name = []
 idl-build = ["anchor-lang/idl-build",  "anchor-spl/idl-build"]
 
 [dependencies]
-enforced_transfer_hook = { path = "../06-enforced-transfer-hook", features = ["cpi"]}
 anchor-lang.workspace = true
 anchor-spl.workspace = true
 spl-transfer-hook-interface.workspace = true

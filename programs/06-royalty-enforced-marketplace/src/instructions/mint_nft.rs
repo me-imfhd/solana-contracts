@@ -63,6 +63,7 @@ pub struct MintNft<'info> {
         mint::token_program = token_program,
         mint::decimals = 0,
         mint::authority = payer,
+        mint::freeze_authority = payer,
         extensions::metadata_pointer::authority = payer,
         extensions::metadata_pointer::metadata_address = mint,
         extensions::group_member_pointer::authority = payer,

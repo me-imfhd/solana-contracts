@@ -4,7 +4,7 @@ use anchor_spl::{
     token::{ Mint, Token, TokenAccount },
 };
 
-declare_id!("8C21j7EYA4ztftyvpJ66cpdKd58ncF4fZGBwPPWxDQyC");
+declare_id!("E7NWwxNk3ktTkM92NLMNEbV7SpgnXc2FNB8dJK2MbDj6");
 
 // Highly recommended to read:
 // https://solana.com/docs/core/tokens,

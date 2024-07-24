@@ -31,6 +31,7 @@ pub fn create_group_mint(ctx: Context<CreateGroupMint>, args: CreateGroupArgs) -
         ctx.accounts.payer.to_account_info(),
         ctx.accounts.system_program.to_account_info()
     )?;
+    msg!("Created Group/ Collection Nft successfully.");
     Ok(())
 }
 
