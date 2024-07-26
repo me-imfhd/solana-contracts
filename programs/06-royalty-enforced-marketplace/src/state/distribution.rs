@@ -17,7 +17,7 @@ pub struct DistributionAccount {
     pub creators_claims: Vec<Creator>,
 }
 
-pub const CLAIM_DATA_OFFSET: usize = 8 + DistributionAccount::INIT_SPACE - Creator::INIT_SPACE;
+pub const DISTRIBUTION_NO_CREATORS_SPACE: usize = 8 + DistributionAccount::INIT_SPACE - Creator::INIT_SPACE;
 pub const DISTRIBUTION_ACCOUNT_MIN_LEN: usize = DistributionAccount::INIT_SPACE + 8;
 
 impl DistributionAccount {

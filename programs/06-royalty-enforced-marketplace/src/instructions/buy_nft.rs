@@ -13,10 +13,16 @@ use anchor_spl::{
 use crate::{
     calculate_royalties,
     error::MarketplaceError,
-    state::{ Creator, DistributionAccount, EnforcingAccount, ListedNftPda, CLAIM_DATA_OFFSET },
+    state::{
+        Creator,
+        DistributionAccount,
+        EnforcingAccount,
+        ListedNftPda,
+        DISTRIBUTION_NO_CREATORS_SPACE,
+    },
 };
 
-use super::{ get_metadata, CreatorWithShare };
+use super::{ get_metadata, update_account_lamports_to_minimum_balance, CreatorWithShare };
 
 pub fn buy_nft(ctx: Context<BuyNft>) -> Result<()> {
     let selling_price = ctx.accounts.listed_nft_pda.price;
@@ -29,7 +35,7 @@ pub fn buy_nft(ctx: Context<BuyNft>) -> Result<()> {
     ctx.accounts.distribute_royalty(royalty_amount)?; // Distribute royalties
     ctx.accounts.set_enforcement()?; // Ensures transfer_hook works by requiring a valid account slot, enforced and validated at hook CPI.
     ctx.accounts.pay_and_invoke_nft_transfer(payment_amount)?; // Send sol to seller, thaw and trasfer the nft, which invokes transfer hook.
-    // ctx.accounts.listed_nft_pda.close(ctx.accounts.seller.to_account_info())?; // Remove from the listing.
+    ctx.accounts.listed_nft_pda.close(ctx.accounts.seller.to_account_info())?; // Remove from the listing.
     Ok(())
 }
 
@@ -74,8 +80,7 @@ pub struct BuyNft<'info> {
     pub mint: Box<InterfaceAccount<'info, Mint>>,
     /// CHECK: Checked inside Token extensions program
     transfer_hook_program: UncheckedAccount<'info>,
-    /// CHECK: Checked inside Token extensions program
-    #[account(seeds = [b"extra-account-metas", mint.key().as_ref()], bump)]
+    /// CHECK: Its owner is another program so can't derive it
     extra_metas_account: UncheckedAccount<'info>,
     #[account(
         init_if_needed,
@@ -126,8 +131,7 @@ impl<'info> BuyNft<'info> {
         if royalty_amount == 0 {
             return Ok(());
         }
-
-        // get all creators from metadata Vec(String, String), only royalty_basis_points needs to be removed
+        let initial_creators_len = self.distribution_account.creators_claims.len();
         let creators = metadata.additional_metadata
             .iter()
             .filter(|(key, _)| key != "royalty_basis_points")
@@ -177,18 +181,25 @@ impl<'info> BuyNft<'info> {
                 }
             }
         }
-        let new_creator_size = std::cmp::max(
-            creators_already_claimer.len() * Creator::INIT_SPACE,
-            Creator::INIT_SPACE
-        );
-        let realloc_size = CLAIM_DATA_OFFSET + new_creator_size;
+        if creators_already_claimer.len() <= initial_creators_len {
+            // No need to reallocate space
+            return Ok(());
+        }
+        msg!("Reallocating space and rent for new creators");
+        let realloc_size =
+            DISTRIBUTION_NO_CREATORS_SPACE + creators_already_claimer.len() * Creator::INIT_SPACE;
+        if creators_already_claimer.len() == 0 {
+            realloc_size.checked_add(Creator::INIT_SPACE).ok_or(MarketplaceError::ArithmeticError)?;
+        }
         self.distribution_account.to_account_info().realloc(realloc_size, false)?;
+        update_account_lamports_to_minimum_balance(
+            self.distribution_account.to_account_info(),
+            self.buyer.to_account_info(),
+            self.system_program.to_account_info()
+        )?;
         Ok(())
     }
-    pub fn pay_and_invoke_nft_transfer(
-        &self,
-        payment_amount: u64,
-    ) -> Result<()> {
+    pub fn pay_and_invoke_nft_transfer(&self, payment_amount: u64) -> Result<()> {
         // transfer payment_amount to seller
         transfer(
             CpiContext::new(self.system_program.to_account_info(), Transfer {
@@ -210,7 +221,7 @@ impl<'info> BuyNft<'info> {
         ];
         let additional_accounts = &mut vec![
             self.transfer_hook_program.to_account_info(),
-            self.extra_metas_account.to_account_info(),
+            self.extra_metas_account.to_account_info()
         ];
         invoke_transfer_checked(
             &Token2022::id(),

@@ -106,6 +106,14 @@ describe("token", () => {
       [wallet.payer, buyer]
     );
     console.log(t);
+    const extraMetasAccount = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        anchor.utils.bytes.utf8.encode("extra-account-metas"),
+        mint.publicKey.toBuffer(),
+      ],
+      transferHookProgram.programId
+    )[0];
+    console.log(extraMetasAccount);
     const tx = await program.methods
       .buyNft()
       .accounts({
@@ -113,6 +121,7 @@ describe("token", () => {
         seller: wallet.publicKey,
         buyer: buyer.publicKey,
         transferHookProgram: transferHookProgram.programId,
+        extraMetasAccount,
       })
       .signers([buyer])
       .rpcAndKeys({

@@ -33,7 +33,7 @@ pub fn update_account_lamports_to_minimum_balance<'info>(
                 to: account,
             }),
             extra_lamports_needed
-        )?;
+        ).unwrap();
     }
     Ok(())
 }

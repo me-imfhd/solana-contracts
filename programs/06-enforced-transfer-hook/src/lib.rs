@@ -13,18 +13,16 @@ pub mod enforced_transfer_hook {
     use spl_transfer_hook_interface::instruction::ExecuteInstruction;
 
     use super::*;
-    #[interface(spl_transfer_hook_interface::initialize_extra_account_meta_list)]
+    // #[interface(spl_transfer_hook_interface::initialize_extra_account_meta_list)]
     pub fn initialize_extra_account_meta_list(
         ctx: Context<InitializeExtraAccountMetaList>
     ) -> Result<()> {
         let extra_account_metas = InitializeExtraAccountMetaList::extra_account_metas()?;
-
         // initialize ExtraAccountMetaList account with extra accounts
         ExtraAccountMetaList::init::<ExecuteInstruction>(
             &mut ctx.accounts.extra_account_meta_list.try_borrow_mut_data()?,
             &extra_account_metas
         )?;
-
         Ok(())
     }
     #[interface(spl_transfer_hook_interface::execute)]

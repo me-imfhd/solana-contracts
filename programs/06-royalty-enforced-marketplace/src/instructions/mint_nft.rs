@@ -69,7 +69,7 @@ pub struct MintNft<'info> {
         extensions::group_member_pointer::authority = payer,
         extensions::group_member_pointer::member_address = mint,
         extensions::transfer_hook::authority = payer,
-        extensions::transfer_hook::program_id = crate::ID
+        extensions::transfer_hook::program_id = enforced_transfer_hook::ID
     )]
     pub mint: Box<InterfaceAccount<'info, Mint>>,
     #[account(
