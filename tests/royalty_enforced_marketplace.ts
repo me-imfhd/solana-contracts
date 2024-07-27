@@ -100,33 +100,34 @@ describe("token", () => {
     let create_buyer_account_tx = new anchor.web3.Transaction().add(
       create_buyer_account
     );
-    let t = await anchor.web3.sendAndConfirmTransaction(
+    await anchor.web3.sendAndConfirmTransaction(
       provider.connection,
       create_buyer_account_tx,
       [wallet.payer, buyer]
     );
-    console.log(t);
-    const extraMetasAccount = anchor.web3.PublicKey.findProgramAddressSync(
-      [
-        anchor.utils.bytes.utf8.encode("extra-account-metas"),
-        mint.publicKey.toBuffer(),
-      ],
-      transferHookProgram.programId
-    )[0];
-    console.log(extraMetasAccount);
     const tx = await program.methods
       .buyNft()
       .accounts({
         mint: mint.publicKey,
         seller: wallet.publicKey,
         buyer: buyer.publicKey,
-        transferHookProgram: transferHookProgram.programId,
-        extraMetasAccount,
       })
       .signers([buyer])
       .rpcAndKeys({
         skipPreflight: true,
       });
     console.log(tx);
+    // try {
+    //   // this is supposed to fail
+    //   console.log("Error must occur here, because only marketplace program can enforce to maintain royalty enforcement");
+    //   const a = await transferHookProgram.methods
+    //     .setEnforcement()
+    //     .accounts({ mint: mint.publicKey })
+    //     .rpc({
+    //       skipPreflight: true,
+    //     });
+    // } catch (err) {
+    //   console.log(err);
+    // }
   });
 });

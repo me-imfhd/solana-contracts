@@ -36,4 +36,6 @@ pub enum MintErrors {
 pub enum MarketplaceError {
     #[msg("Arithmetic error")]
     ArithmeticError,
+    #[msg("Only Marketplace program can enforce royalties")]
+    RequireMarketplaceProgram
 }

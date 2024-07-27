@@ -13,30 +13,17 @@ use anchor_spl::{
     token_interface::{ Mint, TokenAccount },
 };
 
-use crate::error::MetadataErrors;
+use crate::{ error::MetadataErrors, EnforcingAccount };
 
 pub fn execute_hook(ctx: Context<TransferHook>) -> Result<()> {
-    msg!("Executing transfer hook");
     ctx.accounts.check_is_transferring()?;
-    msg!("OK");
+    if ctx.accounts.enforcing_account.slot == Clock::get()?.slot {
+        ctx.accounts.enforcing_account.slot = 0;
+    } else {
+        return Err(MetadataErrors::ExpiredApproveAccount.into());
+    }
+    msg!("Nft transferred successfully.");
     Ok(())
-    // if ctx.remaining_accounts.is_empty() {
-    //     return Err(MetadataErrors::MissingApproveAccount.into());
-    // }
-    // let mut enforcing_account: EnforcingAccount = AnchorDeserialize::deserialize(
-    //     &mut &ctx.remaining_accounts[0].try_borrow_mut_data()?[8..]
-    // )?;
-    // if enforcing_account.slot == Clock::get()?.slot {
-    //     // mark approve account as used by setting slot to 0
-    //     enforcing_account.slot = 0;
-    //     AnchorSerialize::serialize(
-    //         &enforcing_account,
-    //         &mut &mut ctx.remaining_accounts[0].try_borrow_mut_data()?[8..]
-    //     )?;
-    //     return Ok(());
-    // } else {
-    //     return Err(MetadataErrors::ExpiredApproveAccount.into());
-    // }
 }
 // order really matters here
 #[derive(Accounts)]
@@ -59,6 +46,8 @@ pub struct TransferHook<'info> {
     /// CHECK: meta list accounts
     #[account(seeds = [b"extra-account-metas", mint.key().as_ref()], bump)]
     extra_metas_account: UncheckedAccount<'info>,
+    #[account(mut, seeds=[b"enforcing_account", mint.key().as_ref()], bump)]
+    enforcing_account: Account<'info, EnforcingAccount>,
 }
 
 impl<'info> TransferHook<'info> {

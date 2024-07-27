@@ -2,24 +2,20 @@ use std::str::FromStr;
 
 use anchor_lang::{
     prelude::*,
-    solana_program::program_option::COption,
+    solana_program::{program_option::COption, sysvar},
     system_program::{ transfer, Transfer },
 };
+use enforced_transfer_hook::program::EnforcedTransferHook;
 use anchor_spl::{
     associated_token::AssociatedToken,
     token_2022::spl_token_2022::onchain::invoke_transfer_checked,
     token_interface::{ thaw_account, Mint, ThawAccount, Token2022, TokenAccount },
 };
+use enforced_transfer_hook::cpi::accounts::SetEnforcement;
 use crate::{
     calculate_royalties,
     error::MarketplaceError,
-    state::{
-        Creator,
-        DistributionAccount,
-        EnforcingAccount,
-        ListedNftPda,
-        DISTRIBUTION_NO_CREATORS_SPACE,
-    },
+    state::{ Creator, DistributionAccount, ListedNftPda, DISTRIBUTION_NO_CREATORS_SPACE },
 };
 
 use super::{ get_metadata, update_account_lamports_to_minimum_balance, CreatorWithShare };
@@ -78,18 +74,22 @@ pub struct BuyNft<'info> {
         mint.supply == 1
     )]
     pub mint: Box<InterfaceAccount<'info, Mint>>,
-    /// CHECK: Checked inside Token extensions program
-    transfer_hook_program: UncheckedAccount<'info>,
-    /// CHECK: Its owner is another program so can't derive it
+    transfer_hook_program: Program<'info, EnforcedTransferHook>,
+    /// CHECK: extra
+    #[account(
+        mut,
+        seeds = [b"extra-account-metas", mint.key().as_ref()],
+        bump,
+        seeds::program = enforced_transfer_hook::ID
+    )]
     extra_metas_account: UncheckedAccount<'info>,
     #[account(
-        init_if_needed,
+        mut,
         seeds = [b"enforcing_account", mint.key().as_ref()],
         bump,
-        payer = buyer,
-        space = 8 + EnforcingAccount::INIT_SPACE
+        seeds::program = enforced_transfer_hook::ID
     )]
-    pub enforcing_account: Account<'info, EnforcingAccount>,
+    pub enforcing_account: Account<'info, enforced_transfer_hook::EnforcingAccount>,
     #[account(
         mut,
         seeds = [b"distribution_account", mint.key().as_ref()],
@@ -99,12 +99,13 @@ pub struct BuyNft<'info> {
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub token_program: Program<'info, Token2022>,
     pub system_program: Program<'info, System>,
+    ///CHECK: sysvar
+    #[account(address = sysvar::instructions::id())]
+    pub instruction_sysvar: UncheckedAccount<'info>,
 }
 
 impl<'info> BuyNft<'info> {
     pub fn set_enforcement(&mut self) -> Result<()> {
-        let clock = Clock::get()?;
-        self.enforcing_account.slot = clock.slot;
         Ok(())
     }
     pub fn thaw_account(&self) -> Result<()> {
@@ -220,9 +221,17 @@ impl<'info> BuyNft<'info> {
             ],
         ];
         let additional_accounts = &mut vec![
+            self.enforcing_account.to_account_info(),
             self.transfer_hook_program.to_account_info(),
             self.extra_metas_account.to_account_info()
         ];
+        enforced_transfer_hook::cpi::set_enforcement(
+            CpiContext::new(self.transfer_hook_program.to_account_info(), SetEnforcement {
+                mint: self.mint.to_account_info(),
+                enforcing_account: self.enforcing_account.to_account_info(),
+                instruction: self.instruction_sysvar.to_account_info(),
+            })
+        )?;
         invoke_transfer_checked(
             &Token2022::id(),
             self.seller_token_account.to_account_info(),

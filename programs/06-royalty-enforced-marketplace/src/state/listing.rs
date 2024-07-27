@@ -8,9 +8,3 @@ pub struct ListedNftPda {
     pub seller_ata: Pubkey,
     pub mint: Pubkey,
 }
-
-#[account]
-#[derive(InitSpace)]
-pub struct EnforcingAccount {
-    pub slot: u64,
-}
