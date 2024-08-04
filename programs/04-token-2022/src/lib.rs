@@ -1,3 +1,4 @@
+#![allow(ambiguous_glob_reexports)]
 use anchor_lang::prelude::*;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token_interface::{
@@ -9,7 +10,8 @@ use anchor_spl::token_interface::{
     TransferChecked,
 };
 pub mod instructions;
-declare_id!("NDL7ohADyBKBGvBJ9e8WNP9TRGUDCus63KFrzHwjDBn");
+pub use instructions::*;
+declare_id!("Btqh6o2XcewQvF51sbMdXUwFaMK5waC988F3NbmTQNZo");
 
 #[program]
 pub mod token_2022_program {
@@ -19,7 +21,18 @@ pub mod token_2022_program {
         msg!("Created Token {:?}", ctx.accounts.mint);
         Ok(())
     }
-    pub use instructions::metadata_pointer::create_token_with_metadata_pointer;
+    pub fn create_token_with_metadata_pointer(
+        ctx: Context<CreateTokenWithMetadataPointer>,
+        token_metadata: TokenMetadataArgs,
+        decimal: u8
+    ) -> Result<()> {
+        instructions::metadata_pointer::create_token_with_metadata_pointer(
+            ctx,
+            token_metadata,
+            decimal
+        )?;
+        Ok(())
+    }
     pub fn create_token_account(_ctx: Context<CreateTokenAccount>) -> Result<()> {
         msg!("Create Token Account");
         Ok(())
@@ -100,6 +113,7 @@ pub struct CreateAssociatedTokenAccount<'info> {
     pub mint: InterfaceAccount<'info, Mint>,
     #[account(
         init,
+        associated_token::token_program = token_program,
         associated_token::mint = mint,
         payer = signer,
         associated_token::authority = signer
