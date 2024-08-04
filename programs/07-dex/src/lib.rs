@@ -4,7 +4,7 @@ mod state;
 mod instructions;
 use state::*;
 use instructions::*;
-declare_id!("7CysybXTfFLKS9XrRkDKUwufyuVgAaQ6stbuefHvHZyo");
+declare_id!("2QwSjSH5awaCodfXSuS4c4SpwiwyXfQL8LhW5owyP3mZ");
 #[program]
 pub mod dex {
     use super::*;
@@ -14,10 +14,10 @@ pub mod dex {
         instructions::create_pool(ctx)
     }
 
-    // /// Provide liquidity to the pool by funding it with some asset
-    // pub fn fund_pool(ctx: Context<FundPool>, amount: u64) -> Result<()> {
-    //     instructions::fund_pool(ctx, amount)
-    // }
+    /// Provide liquidity to the pool by funding it with some asset
+    pub fn fund_pool(ctx: Context<FundPool>, amount: u64) -> Result<()> {
+        instructions::fund_pool(ctx, amount)
+    }
 
     // /// Swap assets using the DEX
     // pub fn swap(ctx: Context<Swap>, amount_to_swap: u64) -> Result<()> {
