@@ -2,8 +2,10 @@
 use anchor_lang::prelude::*;
 mod state;
 mod instructions;
+mod error;
 use state::*;
 use instructions::*;
+use error::*;
 declare_id!("2QwSjSH5awaCodfXSuS4c4SpwiwyXfQL8LhW5owyP3mZ");
 #[program]
 pub mod dex {
@@ -19,8 +21,8 @@ pub mod dex {
         instructions::fund_pool(ctx, amount)
     }
 
-    // /// Swap assets using the DEX
-    // pub fn swap(ctx: Context<Swap>, amount_to_swap: u64) -> Result<()> {
-    //     instructions::swap(ctx, amount_to_swap)
-    // }
+    /// Swap assets using the DEX
+    pub fn swap(ctx: Context<Exchange>, amount_to_swap: u64) -> Result<()> {
+        instructions::exchange(ctx, amount_to_swap)
+    }
 }

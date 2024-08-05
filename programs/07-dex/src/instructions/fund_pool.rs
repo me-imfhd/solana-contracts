@@ -26,8 +26,9 @@ pub struct FundPool<'info> {
     pool_token_account: InterfaceAccount<'info, TokenAccount>,
     #[account(
         mut, 
-        constraint = mint.key() == funder_token_account.mint.key() &&
-        signer.key() == funder_token_account.owner.key()
+        associated_token::mint = mint,
+        associated_token::authority = signer,
+        associated_token::token_program = token_program
     )]
     funder_token_account: InterfaceAccount<'info, TokenAccount>,
     #[account(mut, seeds = [LiquidityPool::SEED_PREFIX.as_bytes()], bump)]
