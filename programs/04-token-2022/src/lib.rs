@@ -17,7 +17,11 @@ declare_id!("Btqh6o2XcewQvF51sbMdXUwFaMK5waC988F3NbmTQNZo");
 pub mod token_2022_program {
     // use super::*;
     use super::*;
-    pub fn create_token(ctx: Context<CreateToken>, _token_name: String) -> Result<()> {
+    pub fn create_token(
+        ctx: Context<CreateToken>,
+        _token_name: String,
+        _decimal: u8
+    ) -> Result<()> {
         msg!("Created Token {:?}", ctx.accounts.mint);
         Ok(())
     }
@@ -61,7 +65,7 @@ pub mod token_2022_program {
         token_interface::mint_to(
             CpiContext::new(ctx.accounts.token_program.to_account_info(), MintTo {
                 mint: ctx.accounts.mint.to_account_info().clone(),
-                to: ctx.accounts.receiver.to_account_info().clone(),
+                to: ctx.accounts.receiver_ata.to_account_info().clone(),
                 authority: ctx.accounts.signer.to_account_info(),
             }),
             amount
@@ -72,14 +76,14 @@ pub mod token_2022_program {
 }
 
 #[derive(Accounts)]
-#[instruction(token_name: String)]
+#[instruction(token_name: String, decimal: u8)]
 pub struct CreateToken<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
     #[account(
         init,
         payer = signer,
-        mint::decimals = 6,
+        mint::decimals = decimal,
         mint::authority = signer.key(),
         seeds = [b"token-2022-token", signer.key().as_ref(), token_name.as_bytes()],
         bump
@@ -111,12 +115,14 @@ pub struct CreateAssociatedTokenAccount<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
     pub mint: InterfaceAccount<'info, Mint>,
+    /// CHECK: Authority of ata
+    pub authority: AccountInfo<'info>,
     #[account(
         init,
         associated_token::token_program = token_program,
         associated_token::mint = mint,
         payer = signer,
-        associated_token::authority = signer
+        associated_token::authority = authority
     )]
     pub token_account: InterfaceAccount<'info, TokenAccount>,
     pub system_program: Program<'info, System>,
@@ -132,10 +138,11 @@ pub struct TransferToken<'info> {
     pub from: InterfaceAccount<'info, TokenAccount>,
     pub to: SystemAccount<'info>,
     #[account(
-        init,
+        init_if_needed,
         associated_token::mint = mint,
         payer = signer,
-        associated_token::authority = to
+        associated_token::authority = to,
+        associated_token::token_program = token_program
     )]
     pub to_ata: InterfaceAccount<'info, TokenAccount>,
     #[account(mut)]
@@ -151,7 +158,14 @@ pub struct MintToken<'info> {
     pub signer: Signer<'info>,
     #[account(mut)]
     pub mint: InterfaceAccount<'info, Mint>,
-    #[account(mut)]
-    pub receiver: InterfaceAccount<'info, TokenAccount>,
+    /// CHECK: Authority of receiver ata
+    pub reciever: AccountInfo<'info>,
+    #[account(
+        mut, 
+        associated_token::mint = mint,
+        associated_token::authority = reciever,
+        associated_token::token_program = token_program
+    )]
+    pub receiver_ata: InterfaceAccount<'info, TokenAccount>,
     pub token_program: Interface<'info, TokenInterface>,
 }
