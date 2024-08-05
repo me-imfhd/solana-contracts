@@ -70,15 +70,11 @@ impl<'info> Exchange<'info> {
             self.pool_token_account_base.amount,
             self.mint_base.decimals
         );
-        msg!("Initial Base Quantity In Pool: {}", total_base_quantity);
         let total_quote_quantity = convert_to_float(
             self.pool_token_account_quote.amount,
             self.mint_quote.decimals
         );
-        msg!("Initial Quote Quantity In Pool: {}", total_quote_quantity);
         let buy_amount = convert_to_float(buy_amount, self.mint_quote.decimals);
-        msg!("Buying at quote: {}", buy_amount);
-
         let receiving_base_amount = total_base_quantity
             .mul(buy_amount)
             .div(total_quote_quantity.add(buy_amount));
@@ -90,14 +86,6 @@ impl<'info> Exchange<'info> {
     }
     fn exchange_assets(&mut self, buy_amount: u64) -> Result<()> {
         let receiving_base_amount = self.calculate_receiving_base_amount(buy_amount)?;
-        msg!(
-            "\nInitial User Quote Balance: {}",
-            convert_to_float(self.buyer_token_account_quote.amount, self.mint_quote.decimals)
-        );
-        msg!(
-            "Initial User Base Balance: {}",
-            convert_to_float(self.buyer_token_account_base.amount, self.mint_base.decimals)
-        );
         msg!(
             "Exchanging {} {} for {} {}", // e.g, Exchanging 10 BONK for 1 USDC
             receiving_base_amount,
@@ -130,24 +118,6 @@ impl<'info> Exchange<'info> {
             receiving_base_amount,
             self.mint_base.decimals
         )?;
-        let total_base_quantity = convert_to_float(
-            self.pool_token_account_base.amount,
-            self.mint_base.decimals
-        );
-        msg!(
-            "Final User Quote Balance: {}",
-            convert_to_float(self.buyer_token_account_quote.amount, self.mint_quote.decimals)
-        );
-        msg!(
-            "Final User Base Balance: {}\n",
-            convert_to_float(self.buyer_token_account_base.amount, self.mint_base.decimals)
-        );
-        msg!("Final Base Quantity In Pool: {}", total_base_quantity);
-        let total_quote_quantity = convert_to_float(
-            self.pool_token_account_quote.amount,
-            self.mint_quote.decimals
-        );
-        msg!("Final Quote Quantity In Pool : {}", total_quote_quantity);
         Ok(())
     }
 }
